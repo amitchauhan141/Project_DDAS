@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Duplicate Download Detected</title>
+    <link rel="stylesheet" href="duplicate.css" />
+  </head>
+  <body>
+    <main class="card">
+      <h1>Duplicate Dataset Detected</h1>
+      <p class="desc">A matching file already exists in DDAS. Choose how to proceed.</p>
+
+      <section id="details" class="details">
+        <div><strong>File name:</strong> <span id="fileName">-</span></div>
+        <div><strong>Existing location:</strong> <span id="location">-</span></div>
+        <div><strong>Downloaded by:</strong> <span id="user">-</span></div>
+        <div><strong>Timestamp:</strong> <span id="timestamp">-</span></div>
+      </section>
+
+      <div class="actions">
+        <button id="openExisting" class="btn secondary">Open Existing File</button>
+        <button id="cancelDownload" class="btn danger">Cancel Download</button>
+        <button id="downloadAnyway" class="btn primary">Download Anyway</button>
+      </div>
+
+      <p id="status" class="status"></p>
+    </main>
+
+    <script type="module" src="duplicate.js"></script>
+  </body>
+</html>

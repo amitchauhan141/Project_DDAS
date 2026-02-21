@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DDAS Download Sync</title>
+    <style>
+      body {
+        margin: 0;
+        width: 320px;
+        font-family: "Segoe UI", sans-serif;
+        background: #f5f9fc;
+        color: #1d2d39;
+      }
+
+      .wrap {
+        padding: 0.8rem;
+        display: grid;
+        gap: 0.6rem;
+      }
+
+      button {
+        border: 1px solid #c1d4e4;
+        background: #fff;
+        border-radius: 8px;
+        padding: 0.45rem 0.65rem;
+        cursor: pointer;
+      }
+
+      #status {
+        font-size: 0.9rem;
+        color: #33536d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h3>DDAS Download Sync</h3>
+      <div id="status">Checking configuration...</div>
+      <button id="syncBtn">Sync Last 30 Downloads</button>
+      <button id="optionsBtn">Open Settings</button>
+    </div>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>
