@@ -5,8 +5,8 @@
   "description": "Auto-sync completed browser downloads to DDAS dashboard.",
   "permissions": ["downloads", "storage"],
   "host_permissions": [
-    "http://localhost:4000/*",
-    "https://localhost:4000/*"
+    "http://*/*",
+    "https://*/*"
   ],
   "background": {
     "service_worker": "background.js",
