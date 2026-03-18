@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import AccessRequestsList from '../components/AccessRequestsList';
 import ActionModal from '../components/ActionModal';
@@ -11,6 +11,8 @@ import Topbar from '../components/Topbar';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { filterBySearch } from '../utils/search';
+import StatsBar from '../components/StatsBar';
+import DuplicateModal from '../components/DuplicateModal';
 
 const defaultState = {
   my: [],
@@ -36,6 +38,9 @@ export default function DashboardPage() {
   const [actionModal, setActionModal] = useState(null);
   const [actionInput, setActionInput] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [duplicateAlert, setDuplicateAlert] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const canManage = ['ADMIN', 'RESEARCHER'].includes(user?.role || '');
 
@@ -116,7 +121,40 @@ export default function DashboardPage() {
       await api.downloadDataset(dataset.id, token);
       setMessage(`Download prepared for: ${dataset.name}`);
     } catch (err) {
+      if (err.status === 409 || err.message.includes('Duplicate')) {
+        setDuplicateAlert(dataset.name);
+      } else {
+        setError(err.message);
+      }
+    }
+  };
+
+  const triggerUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onFileSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Duplicate Check
+    const isDuplicate = state.my.some(d => d.name === file.name);
+    if (isDuplicate) {
+      setDuplicateAlert(file.name);
+      e.target.value = ''; // reset input
+      return;
+    }
+
+    setUploading(true);
+    try {
+      await api.uploadDataset(file, token);
+      setMessage('Dataset uploaded successfully.');
+      await loadAll();
+    } catch (err) {
       setError(err.message);
+    } finally {
+      setUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -209,15 +247,28 @@ export default function DashboardPage() {
     switch (activeTab) {
       case 'my':
         return (
-          <DatasetTable
-            datasets={searchedMy}
-            canManage={canManage}
-            onOpen={openDataset}
-            onDelete={setDeleteTarget}
-            onDownload={downloadDataset}
-            onRename={openRenameModal}
-            onShare={openShareUserModal}
-          />
+          <>
+            <StatsBar datasets={state.my} sharedWithMe={state.withMe} sharedByMe={state.byMe} />
+            <div className="upload-bar">
+              {canManage ? (
+                <>
+                  <button className="btn btn-primary" onClick={triggerUpload} disabled={uploading}>
+                    {uploading ? 'Uploading...' : '+ Upload Dataset'}
+                  </button>
+                  <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={onFileSelect} />
+                </>
+              ) : <div />}
+            </div>
+            <DatasetTable
+              datasets={searchedMy}
+              canManage={canManage}
+              onOpen={openDataset}
+              onDelete={setDeleteTarget}
+              onDownload={downloadDataset}
+              onRename={openRenameModal}
+              onShare={openShareUserModal}
+            />
+          </>
         );
       case 'with-me':
         return (
@@ -284,6 +335,13 @@ export default function DashboardPage() {
           onSubmit={submitActionModal}
           submitLabel={actionModal.type === 'rename' ? 'Rename' : 'Share'}
           loading={actionLoading}
+        />
+      ) : null}
+
+      {duplicateAlert ? (
+        <DuplicateModal
+          datasetName={duplicateAlert}
+          onCancel={() => setDuplicateAlert(null)}
         />
       ) : null}
     </div>

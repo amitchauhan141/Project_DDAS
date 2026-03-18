@@ -19,33 +19,43 @@ async function seed() {
   const finance = departments.find((d) => d.name === 'Finance');
   const research = departments.find((d) => d.name === 'Research');
 
-  const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 10);
-
   const users = [
     {
       usid: 'ADM001',
       name: 'System Admin',
       email: 'admin@ddas.local',
       role: 'ADMIN',
-      departmentId: engineering?._id
+      departmentId: engineering?._id,
+      password: 'AdminPassword1!'
     },
     {
       usid: 'RSH001',
       name: 'Lead Researcher',
       email: 'researcher@ddas.local',
       role: 'RESEARCHER',
-      departmentId: research?._id
+      departmentId: research?._id,
+      password: 'ResearchPassword1!'
     },
     {
       usid: 'VIW001',
       name: 'Data Viewer',
       email: 'viewer@ddas.local',
       role: 'VIEWER',
-      departmentId: finance?._id
+      departmentId: finance?._id,
+      password: 'ViewerPassword1!'
+    },
+    {
+      usid: 'MKT001',
+      name: 'Marketing Viewer',
+      email: 'marketing@ddas.local',
+      role: 'VIEWER',
+      departmentId: finance?._id,
+      password: 'MarketPassword1!'
     }
   ];
 
   for (const user of users) {
+    const passwordHash = await bcrypt.hash(user.password, 10);
     await User.findOneAndUpdate(
       { usid: user.usid },
       {
@@ -61,7 +71,7 @@ async function seed() {
     );
   }
 
-  console.log('Seed complete. Demo users reset to Password123!: ADM001, RSH001, VIW001');
+  console.log('Seed complete. Distinct users created: ADM001, RSH001, VIW001, MKT001');
   process.exit(0);
 }
 

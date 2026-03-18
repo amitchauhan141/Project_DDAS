@@ -23,6 +23,23 @@ async function request(path, { method = 'GET', token, body, headers = {} } = {})
 export const api = {
   login: (body) => request('/auth/login', { method: 'POST', body }),
   logout: (token) => request('/auth/logout', { method: 'POST', token }),
+  uploadDataset: (file, token) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return fetch(`${BASE_URL}/datasets/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData
+    }).then(async res => {
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const err = new Error(payload?.error?.message || 'Upload failed');
+        err.status = res.status;
+        throw err;
+      }
+      return payload;
+    });
+  },
   getMyDatasets: (token) => request('/datasets', { token }),
   getDatasetDetail: (id, token) => request(`/datasets/${id}`, { token }),
   deleteDataset: (id, token) => request(`/datasets/${id}`, { method: 'DELETE', token }),
